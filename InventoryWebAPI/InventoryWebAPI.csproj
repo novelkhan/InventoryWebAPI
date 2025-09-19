@@ -7,7 +7,29 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.20" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.20" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.20" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.20">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.5.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Application\DTOs\" />
+    <Folder Include="Application\Interfaces\" />
+    <Folder Include="Application\Services\" />
+    <Folder Include="Controllers\" />
+    <Folder Include="Domain\Exceptions\" />
+    <Folder Include="Domain\Repositories\" />
+    <Folder Include="Domain\ValueObjects\" />
+    <Folder Include="Helpers\" />
+    <Folder Include="Infrastructure\Data\" />
+    <Folder Include="Infrastructure\UnitOfWork\" />
+    <Folder Include="Infrastructure\Repositories\" />
   </ItemGroup>
 
 </Project>
