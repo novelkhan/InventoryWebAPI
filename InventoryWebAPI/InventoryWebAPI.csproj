@@ -23,10 +23,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Application\DTOs\" />
     <Folder Include="Application\Interfaces\" />
     <Folder Include="Application\Services\" />
-    <Folder Include="Controllers\" />
     <Folder Include="Domain\Exceptions\" />
     <Folder Include="Domain\Repositories\" />
     <Folder Include="Domain\ValueObjects\" />
