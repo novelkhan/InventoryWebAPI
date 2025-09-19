@@ -9,6 +9,10 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.20" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.20" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.20">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.20" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.20">
       <PrivateAssets>all</PrivateAssets>
@@ -27,7 +31,6 @@
     <Folder Include="Domain\Repositories\" />
     <Folder Include="Domain\ValueObjects\" />
     <Folder Include="Helpers\" />
-    <Folder Include="Infrastructure\Data\" />
     <Folder Include="Infrastructure\UnitOfWork\" />
     <Folder Include="Infrastructure\Repositories\" />
   </ItemGroup>
