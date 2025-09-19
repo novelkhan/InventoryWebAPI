@@ -1,6 +1,9 @@
+using InventoryWebAPI.Application.Interfaces;
 using InventoryWebAPI.Domain.Entities;
 using InventoryWebAPI.Infrastructure.Data;
+using InventoryWebAPI.Infrastructure.Repositories;
 using InventoryWebAPI.Infrastructure.Security;
+using InventoryWebAPI.Infrastructure.UnitOfWork;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -22,8 +25,12 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
-// be able to inject JWTService class inside my Controllers
-builder.Services.AddScoped<JWTService>();
+// Repositories & UnitOfWork
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+// JWTService
+builder.Services.AddScoped<IJwtService, JWTService>();
 
 //Here I Am Defining My IdentityCore Service
 builder.Services.AddIdentityCore<User>(options =>
