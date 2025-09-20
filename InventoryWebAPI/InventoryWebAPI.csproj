@@ -25,9 +25,7 @@
   <ItemGroup>
     <Folder Include="Application\Services\" />
     <Folder Include="Domain\Exceptions\" />
-    <Folder Include="Domain\Repositories\" />
     <Folder Include="Domain\ValueObjects\" />
-    <Folder Include="Helpers\" />
   </ItemGroup>
 
 </Project>
