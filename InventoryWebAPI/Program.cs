@@ -1,7 +1,9 @@
 using InventoryWebAPI.Application.Interfaces;
+using InventoryWebAPI.Application.Interfaces.Inventory;
 using InventoryWebAPI.Domain.Entities;
 using InventoryWebAPI.Infrastructure.Data;
 using InventoryWebAPI.Infrastructure.Repositories;
+using InventoryWebAPI.Infrastructure.Repositories.Inventory;
 using InventoryWebAPI.Infrastructure.Security;
 using InventoryWebAPI.Infrastructure.UnitOfWork;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -25,21 +27,21 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 // Repositories & UnitOfWork
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 // JWTService
 builder.Services.AddScoped<IJwtService, JWTService>();
 
-// Here I Am Defining My IdentityCore Service
+// IdentityCore Service
 builder.Services.AddIdentityCore<User>(options =>
 {
-    // password configuration
     options.Password.RequiredLength = 6;
     options.Password.RequireDigit = false;
     options.Password.RequireLowercase = false;
     options.Password.RequireUppercase = false;
     options.Password.RequireNonAlphanumeric = false;
-    // for email confirmation
     options.SignIn.RequireConfirmedEmail = false;
 })
     .AddRoles<IdentityRole>()
@@ -49,7 +51,7 @@ builder.Services.AddIdentityCore<User>(options =>
     .AddUserManager<UserManager<User>>()
     .AddDefaultTokenProviders();
 
-// To be able to authenticate users using JWT
+// JWT Authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -75,6 +77,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 app.Run();
