@@ -19,8 +19,6 @@ namespace InventoryWebAPI.Infrastructure.Security
         {
             _config = config;
             _userManager = userManager;
-
-            // jwtKey is used for both encripting and decripting the JWT token
             _jwtKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JWT:Key"]));
         }
 
@@ -33,16 +31,16 @@ namespace InventoryWebAPI.Infrastructure.Security
                 new Claim(ClaimTypes.Name, user.UserName ?? string.Empty)
             };
 
-            // attach roles if any (kept commented-out in your original code — I enabled roles to be included if present)
             var roles = await _userManager.GetRolesAsync(user);
             userClaims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
-            var creadentials = new SigningCredentials(_jwtKey, SecurityAlgorithms.HmacSha512);
+            var credentials = new SigningCredentials(_jwtKey, SecurityAlgorithms.HmacSha512);
+
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(userClaims),
                 Expires = DateTime.UtcNow.AddMinutes(int.Parse(_config["JWT:ExpiresInMinutes"])),
-                SigningCredentials = creadentials,
+                SigningCredentials = credentials,
                 Issuer = _config["JWT:Issuer"],
                 Audience = _config["JWT:Audience"]
             };
@@ -57,7 +55,6 @@ namespace InventoryWebAPI.Infrastructure.Security
             var token = new byte[32];
             using var randomNumberGenerator = RandomNumberGenerator.Create();
             randomNumberGenerator.GetBytes(token);
-
             var refreshToken = new RefreshToken()
             {
                 Token = Convert.ToBase64String(token),
@@ -65,7 +62,6 @@ namespace InventoryWebAPI.Infrastructure.Security
                 DateCreatedUtc = DateTime.UtcNow,
                 DateExpiresUtc = DateTime.UtcNow.AddDays(int.Parse(_config["JWT:RefreshTokenExpiresInDays"]))
             };
-
             return refreshToken;
         }
     }

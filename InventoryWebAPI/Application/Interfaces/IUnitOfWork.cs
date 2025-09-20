@@ -1,6 +1,4 @@
-﻿using InventoryWebAPI.Application.Interfaces;
-
-namespace InventoryWebAPI.Infrastructure.UnitOfWork
+﻿namespace InventoryWebAPI.Application.Interfaces
 {
     public interface IUnitOfWork : IDisposable
     {

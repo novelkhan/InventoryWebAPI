@@ -46,7 +46,6 @@ namespace InventoryWebAPI.Infrastructure.Repositories
             return result.Succeeded;
         }
 
-        // RefreshToken =======================
         public async Task<RefreshToken?> GetRefreshTokenByUserIdAsync(string userId)
         {
             return await _context.RefreshTokens.FirstOrDefaultAsync(x => x.UserId == userId);

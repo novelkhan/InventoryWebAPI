@@ -9,8 +9,6 @@ namespace InventoryWebAPI.Application.Interfaces
         Task<bool> EmailExistsAsync(string email);
         Task<bool> CheckPasswordAsync(User user, string password);
         Task<bool> CreateUserAsync(User user, string password);
-
-        // RefreshToken সম্পর্কিত
         Task<RefreshToken?> GetRefreshTokenByUserIdAsync(string userId);
         Task<RefreshToken?> GetRefreshTokenAsync(string userId, string token);
         Task AddRefreshTokenAsync(RefreshToken refreshToken);
