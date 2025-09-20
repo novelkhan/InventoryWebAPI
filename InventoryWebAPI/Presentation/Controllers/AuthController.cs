@@ -73,7 +73,7 @@ namespace InventoryWebAPI.Presentation.Controllers
             };
             var success = await _uow.Users.CreateUserAsync(userToAdd, model.Password);
             if (!success) return BadRequest("User creation failed");
-            return Ok(new { title = "Account Created", message = "Your account has been created." });
+            return Ok(new JsonResult(new { title = "Account Created", message = "Your account has been created" }));
         }
 
         #region Private Helper Methods
