@@ -29,11 +29,12 @@ The E-Commerce Inventory Management System is a full-stack application designed 
 - **Secure Authentication**: Implements JWT (JSON Web Tokens) for user registration, login, and authorization, with refresh token support for seamless session management.
 - **Inventory Management**: Supports CRUD operations for products and categories, including filtering, pagination, search by name/description, and image upload (stored as Base64).
 - **Architecture**: Backend uses DDD layered style (Application, Domain, Infrastructure, Presentation folders) with Repository Pattern and Unit of Work for efficient data access and transaction management.
-- **ORM & Database**: Entity Framework Core for ORM, with Local MSSQL as the database.
+- **ORM & Database**: Entity Framework Core for ORM, with Local MSSQL for development and PostgreSQL for production (hosted on Render's free tier).
 - **API Documentation**: Swagger integrated for API exploration in development mode (disabled in production).
 - **File Handling**: Product images are uploaded and stored as Base64 strings in the database.
 - **Frontend Design**: Responsive UI built with SCSS and Bootstrap, featuring a modern header (with navigation and auth controls) and footer (with copyright, links, and contact info).
 - **Code Quality**: Follows SOLID principles, clean code practices, and Git for version control.
+- **Deployment**: Automated CI/CD pipeline using GitHub Actions for deployment to Render.
 
 The system is deployed on **Render** for live access and is optimized for performance and scalability.
 
@@ -85,7 +86,9 @@ To quickly test the application, you can use the following credentials:
 - **Architecture**: Domain-Driven Design (DDD) with layered structure (Application, Domain, Infrastructure, Presentation)
 - **Design Patterns**: Repository Pattern, Unit of Work
 - **ORM**: Entity Framework Core
-- **Database**: Local MSSQL
+- **Database**: 
+  - **Development**: Local MSSQL
+  - **Production**: PostgreSQL (hosted on Render's free tier)
 - **Authentication**: JWT with refresh tokens
 - **Documentation**: Swagger (available in development only)
 - **Other**: SOLID principles, clean code, Git for version control
@@ -103,7 +106,9 @@ To quickly test the application, you can use the following credentials:
 ### Prerequisites
 - **Node.js**: v16 or higher
 - **.NET SDK**: 8.0 or higher
-- **SQL Server**: LocalDB or full instance
+- **Database**: 
+  - Local MSSQL for development (LocalDB or full instance)
+  - PostgreSQL for production (optional, if deploying to Render)
 - **Git**: For cloning repositories
 - **Angular CLI**: v16 or higher (`npm install -g @angular/cli`)
 
