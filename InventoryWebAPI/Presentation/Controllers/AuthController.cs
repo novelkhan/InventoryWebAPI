@@ -5,6 +5,8 @@ using InventoryWebAPI.Infrastructure.UnitOfWork;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using Microsoft.AspNetCore.SignalR;
+using InventoryWebAPI.Hubs;
 
 namespace InventoryWebAPI.Presentation.Controllers
 {
@@ -15,12 +17,14 @@ namespace InventoryWebAPI.Presentation.Controllers
         private readonly IJwtService _jwtService;
         private readonly IUnitOfWork _uow;
         private readonly IConfiguration _config;
+        private readonly IHubContext<ProgressHub> _progressHubContext; // নতুন যোগ করো
 
-        public AuthController(IJwtService jwtService, IUnitOfWork uow, IConfiguration config)
+        public AuthController(IJwtService jwtService, IUnitOfWork uow, IConfiguration config, IHubContext<ProgressHub> progressHubContext)
         {
             _jwtService = jwtService;
             _uow = uow;
             _config = config;
+            _progressHubContext = progressHubContext; // নতুন যোগ করো
         }
 
         [Authorize]
@@ -52,11 +56,37 @@ namespace InventoryWebAPI.Presentation.Controllers
         [HttpPost("login")]
         public async Task<ActionResult<UserDto>> Login(LoginDto model)
         {
+            // ক্লায়েন্টের কানেকশন ID পাওয়া (ফ্রন্টএন্ড থেকে পাঠানো হবে)
+            var connectionId = Request.Query["connectionId"]; // ফ্রন্টএন্ড থেকে কুয়েরি প্যারামিটার হিসেবে পাঠাও
+
+            if (string.IsNullOrEmpty(connectionId))
+                return BadRequest("Connection ID required for real-time progress");
+
+            // প্রোগ্রেস সিমুলেশন শুরু
+            await SendProgress(connectionId, 0);
+
             var user = await _uow.Users.FindByEmailAsync(model.Email);
-            if (user == null) return Unauthorized("Invalid username or password");
+            if (user == null)
+            {
+                await SendProgress(connectionId, 100); // সম্পূর্ণ, কিন্তু এরর
+                return Unauthorized("Invalid username or password");
+            }
+            await SendProgress(connectionId, 20); // 20% সম্পূর্ণ (ইমেইল চেক)
+
             var validPassword = await _uow.Users.CheckPasswordAsync(user, model.Password);
-            if (!validPassword) return Unauthorized("Invalid username or password");
-            return await CreateApplicationUserDto(user);
+            if (!validPassword)
+            {
+                await SendProgress(connectionId, 100);
+                return Unauthorized("Invalid username or password");
+            }
+            await SendProgress(connectionId, 50);
+
+            
+            var dto = await CreateApplicationUserDto(user);
+            await SendProgress(connectionId, 80);
+
+            await SendProgress(connectionId, 100);
+            return dto;
         }
 
         [HttpPost("register")]
@@ -120,6 +150,11 @@ namespace InventoryWebAPI.Presentation.Controllers
             if (fetchedRefreshToken == null) return false;
             if (fetchedRefreshToken.IsExpired) return false;
             return true;
+        }
+
+        private async Task SendProgress(string connectionId, int progress)
+        {
+            await _progressHubContext.Clients.Client(connectionId).SendAsync("ReceiveProgress", progress);
         }
         #endregion
     }

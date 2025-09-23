@@ -1,6 +1,7 @@
-using InventoryWebAPI.Application.Interfaces;
+﻿using InventoryWebAPI.Application.Interfaces;
 using InventoryWebAPI.Application.Interfaces.Inventory;
 using InventoryWebAPI.Domain.Entities;
+using InventoryWebAPI.Hubs;
 using InventoryWebAPI.Infrastructure.Data;
 using InventoryWebAPI.Infrastructure.Repositories;
 using InventoryWebAPI.Infrastructure.Repositories.Inventory;
@@ -20,13 +21,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-//// Adding My MSSQL ConnectionString
-//builder.Services.AddDbContext<AppDbContext>(options =>
-//{
-//    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-//});
-
-
+// Adding PostgreSQL ConnectionString
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
@@ -58,6 +53,21 @@ builder.Services.AddIdentityCore<User>(options =>
     .AddUserManager<UserManager<User>>()
     .AddDefaultTokenProviders();
 
+// SignalR
+builder.Services.AddSignalR();
+
+// CORS পলিসি সংজ্ঞায়িত করো
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecificOrigin", builder =>
+    {
+        builder.WithOrigins("http://localhost:4200") // ফ্রন্টএন্ড URL (HTTP, HTTPS নয়)
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials(); // SignalR-এর জন্য ক্রেডেনশিয়াল সাপোর্ট
+    });
+});
+
 // JWT Authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -74,21 +84,15 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-builder.Services.AddCors();
-
-
-
-
-
-//Modifying My Server Side Error Messages
+// Modifying Server-Side Error Messages
 builder.Services.Configure<ApiBehaviorOptions>(options =>
 {
     options.InvalidModelStateResponseFactory = actionContext =>
     {
         var errors = actionContext.ModelState
-        .Where(x => x.Value.Errors.Count > 0)
-        .SelectMany(x => x.Value.Errors)
-        .Select(x => x.ErrorMessage).ToArray();
+            .Where(x => x.Value.Errors.Count > 0)
+            .SelectMany(x => x.Value.Errors)
+            .Select(x => x.ErrorMessage).ToArray();
 
         var toReturn = new
         {
@@ -102,12 +106,8 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-app.UseCors(opt =>
-{
-    opt.AllowAnyHeader().AllowAnyMethod().AllowCredentials().WithOrigins(builder.Configuration["JWT:ClientUrl"]);
-});
+app.UseCors("AllowSpecificOrigin"); // নামযুক্ত CORS পলিসি ব্যবহার করো
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -118,4 +118,5 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHub<ProgressHub>("/progressHub");
 app.Run();
