@@ -13,7 +13,7 @@ A robust and scalable E-Commerce Inventory Management System designed for effici
 
 | Information                  | Details                                                                 |
 |------------------------------|-------------------------------------------------------------------------|
-| **Live Demo**                | [View Live Application](https://inventoryfrontend-jcw0.onrender.com)    |
+| **Live Demo**                | [View Live Application](https://inventoryfrontend-u08l.onrender.com)    |
 | **Frontend Repository**      | [GitHub Repo](https://github.com/novelkhan/InventoryFrontend.git)       |
 | **Backend Repository**       | [GitHub Repo](https://github.com/novelkhan/InventoryWebAPI.git)         |
 | **API Documentation**        | [Swagger (Dev Only)](http://localhost:7011/swagger/index.html)          |
