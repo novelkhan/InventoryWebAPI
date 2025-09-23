@@ -56,19 +56,41 @@ builder.Services.AddIdentityCore<User>(options =>
 // SignalR
 builder.Services.AddSignalR();
 
-// CORS পলিসি সংজ্ঞায়িত করো
+// CORS Policy - appsettings.json থেকে ডায়নামিকভাবে নেওয়া
+var clientUrls = builder.Configuration.GetSection("JWT:ClientUrl").Get<string>();
+var allowedOrigins = new List<string>();
+
+if (!string.IsNullOrEmpty(clientUrls))
+{
+    // Multiple URLs সাপোর্ট করার জন্য (comma separated)
+    var urls = clientUrls.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                         .Select(url => url.Trim())
+                         .Where(url => !string.IsNullOrEmpty(url))
+                         .ToArray();
+
+    allowedOrigins.AddRange(urls);
+}
+
+// Fallback for development
+if (allowedOrigins.Count == 0)
+{
+    allowedOrigins.Add("http://localhost:4200");
+    allowedOrigins.Add("https://localhost:4200");
+}
+
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowSpecificOrigin", builder =>
+    options.AddPolicy("AllowSpecificOrigin", corsBuilder =>
     {
-        builder.WithOrigins("http://localhost:4200") // ফ্রন্টএন্ড URL (HTTP, HTTPS নয়)
-              .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials(); // SignalR-এর জন্য ক্রেডেনশিয়াল সাপোর্ট
+        corsBuilder.WithOrigins(allowedOrigins.ToArray())
+                  .AllowAnyHeader()
+                  .AllowAnyMethod()
+                  .AllowCredentials()
+                  .SetIsOriginAllowed((host) => true);
     });
 });
 
-// JWT Authentication
+// JWT Authentication - SignalR এর জন্য বিশেষ কনফিগারেশন
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -81,6 +103,23 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = false,
             ValidateLifetime = true,
             ClockSkew = TimeSpan.Zero
+        };
+
+        // SignalR এর জন্য JWT events কনফিগার করুন
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"];
+                var path = context.HttpContext.Request.Path;
+
+                if (!string.IsNullOrEmpty(accessToken) &&
+                    path.StartsWithSegments("/progressHub"))
+                {
+                    context.Token = accessToken;
+                }
+                return Task.CompletedTask;
+            }
         };
     });
 
@@ -105,8 +144,8 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-app.UseCors("AllowSpecificOrigin"); // নামযুক্ত CORS পলিসি ব্যবহার করো
+
+app.UseCors("AllowSpecificOrigin");
 
 if (app.Environment.IsDevelopment())
 {

@@ -92,17 +92,35 @@ namespace InventoryWebAPI.Presentation.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterDto model)
         {
+            var connectionId = Request.Query["connectionId"];
+            if (string.IsNullOrEmpty(connectionId))
+                return BadRequest("Connection ID required for real-time progress");
+
+            await SendProgress(connectionId, 0);
+
             if (await _uow.Users.EmailExistsAsync(model.Email))
             {
+                await SendProgress(connectionId, 100);
                 return BadRequest($"An existing account is using {model.Email}, email address.");
             }
+            await SendProgress(connectionId, 20);
+
             var userToAdd = new User
             {
                 UserName = model.Username,
                 Email = model.Email.ToLower(),
             };
+            await SendProgress(connectionId, 50);
+
             var success = await _uow.Users.CreateUserAsync(userToAdd, model.Password);
-            if (!success) return BadRequest("User creation failed");
+            if (!success)
+            {
+                await SendProgress(connectionId, 100);
+                return BadRequest("User creation failed");
+            }
+            await SendProgress(connectionId, 80);
+
+            await SendProgress(connectionId, 100);
             return Ok(new JsonResult(new { title = "Account Created", message = "Your account has been created" }));
         }
 
